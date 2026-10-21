@@ -1,0 +1,36 @@
+name: Cleaner
+options:
+  bundleIdPrefix: br.com.treendz
+  deploymentTarget: { macOS: "13.0" }
+  developmentLanguage: pt-BR
+  knownRegions: [pt-BR, en]
+packages:
+  CleanerCore: { path: .. }
+targets:
+  Cleaner:
+    type: application
+    platform: macOS
+    sources: [Sources]
+    dependencies:
+      - package: CleanerCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: br.com.treendz.cleaner
+        PRODUCT_NAME: Cleaner
+        SWIFT_VERSION: "5.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        ENABLE_APP_SANDBOX: NO
+        CODE_SIGN_ENTITLEMENTS: Cleaner.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Cleaner
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+      configs:
+        Debug:
+          CODE_SIGN_STYLE: Automatic
+          CODE_SIGN_IDENTITY: "-"
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "-" # release.sh sobrescreve com DEVELOPER_ID_APP
+          OTHER_CODE_SIGN_FLAGS: --timestamp
