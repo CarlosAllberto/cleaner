@@ -78,6 +78,8 @@ struct HistoryView: View {
                 Divider()
                 HStack {
                     Button("Liberar agora…", role: .destructive) { confirmingRelease = true }
+                    Button("Selecionar tudo") { model.selection = Set(s.items.filter { $0.status != .unrecoverable }.map(\.id)) }
+                    Button("Nenhum") { model.selection = [] }.disabled(model.selection.isEmpty)
                     Spacer()
                     Button("Restaurar selecionados") { model.requestRestore(s, items: model.selection) }
                         .disabled(model.selection.isEmpty)

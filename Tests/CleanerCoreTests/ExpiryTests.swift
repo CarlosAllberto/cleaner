@@ -56,4 +56,21 @@ final class ExpiryTests: XCTestCase {
         XCTAssertEqual(done, [old])
         XCTAssertEqual(try e.manifest(fresh).items[0].status, .moved)
     }
+
+    func testExpireRemovesReadOnlyFolders() async throws {
+        // Como o cache do dotslash: pastas r-x impedem apagar o que há dentro.
+        let e = Env()
+        let item = e.file("Library/Caches/dotslash/bd/x.app/Contents/bin").deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        for rel in ["bd/x.app/Contents", "bd/x.app", "bd"] {
+            try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: item.appendingPathComponent(rel).path)
+        }
+        let id = try await e.engine.quarantine.quarantine([CleanItem(url: item, size: 7, kind: .directory)], module: .systemJunk).sessionID!
+        let q = URL(fileURLWithPath: try e.manifest(id).items[0].quarantinePath)
+        XCTAssertTrue(e.exists(q))
+
+        try e.engine.expiry.expire(id)
+        XCTAssertFalse(e.exists(q))
+        XCTAssertEqual(try e.manifest(id).items[0].status, .expired)
+    }
 }
